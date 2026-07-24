@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Ativação - NEXUSFLIX</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.6);
+        }
+
+        .card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e67e22;
+            font-size: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 5px;
+            background: #252525;
+            border: 1px solid #444;
+            color: #ccc;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #d35400;
+            color: #fff;
+            border-color: #d35400;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 45px;
+            padding: 0 12px;
+            background: #252525;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: .3s;
+        }
+
+        .form-group input:focus {
+            border-color: #d35400;
+            background: #2d2d2d;
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 48px;
+            background: #d35400;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: #e67e22;
+        }
+
+        .btn-submit:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .list-item {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item-info h4 {
+            color: #e67e22;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .list-item-info p {
+            color: #aaa;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-edit { background: #2980b9; color: #fff; }
+        .btn-delete { background: #c0392b; color: #fff; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        #statusMessage {
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-success { background: #145a1a; color: #b7f7bb; }
+        .status-error { background: #721c24; color: #ffb3b3; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>NEUXS FLIX ATIVAÇÃO criador | xz.daniel.01</h2>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('m3u')">LISTA M3U</button>
+        <button class="tab-btn" onclick="switchTab('xtreme')">LISTA XTREME</button>
+        <button class="tab-btn" onclick="switchTab('login')"> NEXUS LOGIN</button>
+    </div>
+
+    <div id="m3uTab" class="tab-content active">
+        <div class="form-group">
+            <label>Código MAC (7 dígitos):</label>
+            <input type="text" id="m3uMac" placeholder="Ex: 6745578" maxlength="7" style="text-transform: uppercase;">
+        </div>
+        <div class="form-group">
+            <label>Código PIN (7 dígitos):</label>
+            <input type="text" id="m3uPin" placeholder="Ex: 6792778" maxlength="7" inputmode="numeric">
+        </div>
+        <div class="form-group">
+            <label>Título da lista:</label>
+            <input type="text" id="m3uTitle" placeholder="Ex: Minha Lista">
+        </div>
+        <div class="form-group">
+            <label>URL da lista:</label>
+            <input type="url" id="m3uUrl" placeholder="http://...">
+        </div>
+        <button id="btnM3u" class="btn-submit" onclick="processUpload('m3u')">ENVIAR LISTA</button>
+    </div>
+
+    <div id="xtremeTab" class="tab-content">
+        <div class="form-group">
+            <label>Código MAC (7 dígitos):</label>
+            <input type="text" id="xtremeMac" placeholder="Ex: 6745578" maxlength="7" style="text-transform: uppercase;">
+        </div>
+        <div class="form-group">
+            <label>Código PIN (7 dígitos):</label>
+            <input type="text" id="xtremePin" placeholder="Ex: 6792778" maxlength="7" inputmode="numeric">
+        </div>
+        <div class="form-group">
+            <label>Título da lista:</label>
+            <input type="text" id="xtremeTitle" placeholder="Ex: Minha Lista Xtreme">
+        </div>
+        <div class="form-group">
+            <label>User:</label>
+            <input type="text" id="xtremeUser" placeholder="9syr7mp2">
+        </div>
+        <div class="form-group">
+            <label>Pass:</label>
+            <input type="text" id="xtremePass" placeholder="3b2mfsrz">
+        </div>
+        <div class="form-group">
+            <label>Host:</label>
+            <input type="text" id="xtremeHost" placeholder="http://ipsmart.icu:80">
+        </div>
+        <button id="btnXtreme" class="btn-submit" onclick="processUpload('xtreme')">ENVIAR LISTA</button>
+    </div>
+
+    <div id="loginTab" class="tab-content">
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Código MAC (7 dígitos):</label>
+                <input type="text" id="loginMac" placeholder="Ex: 6745578" maxlength="7" style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Código PIN (7 dígitos):</label>
+                <input type="text" id="loginPin" placeholder="Ex: 6792778" maxlength="7" inputmode="numeric">
+            </div>
+            <button id="btnLogin" class="btn-submit" onclick="loginAndFetch()">ENTRAR E GERENCIAR</button>
+        </div>
+
+        <div id="userListsContainer" style="display:none;">
+            <h3 style="color:#e67e22; font-size:16px; margin-top:10px;">Listas Encontradas:</h3>
+            <div id="verticalList" class="list-container"></div>
+            <button class="btn-submit" style="background:#444; margin-top:15px;" onclick="logout()">VOLTAR</button>
+        </div>
+    </div>
+
+    <div id="statusMessage"></div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:#e67e22; margin-bottom:15px;">Editar Lista</h3>
+        
+        <div class="form-group">
+            <label>Título da lista:</label>
+            <input type="text" id="editTitle">
+        </div>
+
+        <div id="editTypeM3u" style="display:none;">
+            <div class="form-group">
+                <label>URL M3U:</label>
+                <input type="text" id="editM3uUrl">
+            </div>
+        </div>
+
+        <div id="editTypeXtreme" style="display:none;">
+            <div class="form-group">
+                <label>User:</label>
+                <input type="text" id="editUser">
+            </div>
+            <div class="form-group">
+                <label>Pass:</label>
+                <input type="text" id="editPass">
+            </div>
+            <div class="form-group">
+                <label>Host:</label>
+                <input type="text" id="editHost">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="saveEditedList()">SALVAR ALTERAÇÕES</button>
+        <button class="btn-submit" style="background:#555; margin-top:8px;" onclick="closeEditModal()">CANCELAR</button>
+    </div>
+</div>
+
+<script>
+const SUPABASE_BASE_URL = "https://ugqowiffckcmfhrhgmbs.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DkZWo2w0XeZcmtxnqo-oGA_r0ro6aAX";
+
+const GITHUB_REPO = "nexusflix/NEXUSFLIXTV";
+const GITHUB_PATH = "Nexusflix/List/M3u";
+
+let currentFileData = null; 
+let currentEditingKey = null;
+
+// Função Utilitária para buscar valores ignorando fontes especiais e caracteres estilizados
+function getValueByFlexibleKeys(obj, possibleKeys) {
+    if (!obj || typeof obj !== 'object') return "";
+    const objKeys = Object.keys(obj);
+    for (const pKey of possibleKeys) {
+        for (const oKey of objKeys) {
+            if (oKey.toLowerCase().replace(/[^a-z0-9]/g, '') === pKey.toLowerCase().replace(/[^a-z0-9]/g, '')) {
+                return obj[oKey];
+            }
+        }
+    }
+    return "";
+}
+
+function switchTab(type) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    showStatus("", "none");
+
+    if (type === 'm3u') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('m3uTab').classList.add('active');
+    } else if (type === 'xtreme') {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('xtremeTab').classList.add('active');
+    } else {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('loginTab').classList.add('active');
+    }
+}
+
+async function getGithubToken() {
+    const response = await fetch(`${SUPABASE_BASE_URL}/rest/v1/Token?select=*`, {
+        method: "GET",
+        headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + SUPABASE_KEY,
+            "Content-Type": "application/json"
+        }
+    });
+
+    if (!response.ok) throw new Error("Falha ao obter credenciais.");
+
+    const data = await response.json();
+    if (data && data.length > 0 && data[0].id) {
+        return data[0].id;
+    }
+    throw new Error("Token não encontrado.");
+}
+
+async function getGithubFile(mac, ghToken) {
+    const fileUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}/${mac}.json`;
+    
+    const response = await fetch(fileUrl, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${ghToken}`,
+            "Accept": "application/vnd.github.v3+json"
+        }
+    });
+
+    if (response.status === 200) {
+        const fileData = await response.json();
+        const contentDecoded = decodeURIComponent(escape(atob(fileData.content)));
+        return {
+            sha: fileData.sha,
+            json: JSON.parse(contentDecoded)
+        };
+    }
+    return null;
+}
+
+async function processUpload(type) {
+    let mac, pin, title, itemObject, button;
+
+    if (type === 'm3u') {
+        mac = document.getElementById("m3uMac").value.trim().toUpperCase();
+        pin = document.getElementById("m3uPin").value.trim();
+        title = document.getElementById("m3uTitle").value.trim();
+        const url = document.getElementById("m3uUrl").value.trim();
+        button = document.getElementById("btnM3u");
+
+        itemObject = {
+            "título": title,
+            "ᴍ3ᴜ": url
+        };
+    } else {
+        mac = document.getElementById("xtremeMac").value.trim().toUpperCase();
+        pin = document.getElementById("xtremePin").value.trim();
+        title = document.getElementById("xtremeTitle").value.trim();
+        const user = document.getElementById("xtremeUser").value.trim();
+        const pass = document.getElementById("xtremePass").value.trim();
+        let host = document.getElementById("xtremeHost").value.trim();
+        button = document.getElementById("btnXtreme");
+
+        itemObject = {
+            "título": title,
+            "ᴜꜱᴇʀ": user,
+            "ᴩᴀꜱꜱ": pass,
+            "host": host
+        };
+    }
+
+    if (!/^[A-Z0-9]{7}$/.test(mac)) { showStatus("Digite um MAC válido com 7 dígitos.", "error"); return; }
+    if (!/^[0-9]{7}$/.test(pin)) { showStatus("Digite um PIN com 7 números.", "error"); return; }
+    if (!title) { showStatus("Informe o título da lista.", "error"); return; }
+
+    button.disabled = true;
+    button.innerHTML = "PROCESSANDO...";
+    showStatus("", "none");
+
+    try {
+        const ghToken = await getGithubToken();
+        const existingFile = await getGithubFile(mac, ghToken);
+
+        let jsonObject = {
+            "Mac": mac,
+            "Pin": pin,
+            "List1": "", "List2": "", "List3": "", "List4": "", "List5": ""
+        };
+
+        let sha = null;
+        if (existingFile) {
+            jsonObject = existingFile.json;
+            sha = existingFile.sha;
+        }
+
+        let slotEncontrado = false;
+        for (let i = 1; i <= 5; i++) {
+            const key = `List${i}`;
+            if (!jsonObject[key] || jsonObject[key] === "") {
+                jsonObject[key] = itemObject;
+                slotEncontrado = true;
+                break;
+            }
+        }
+
+        if (!slotEncontrado) throw new Error("Limite máximo de 5 listas atingido para este MAC.");
+
+        await updateGithubFile(mac, jsonObject, sha, ghToken);
+        showStatus("Lista vinculada com sucesso!", "success");
+
+    } catch (error) {
+        showStatus("Erro: " + error.message, "error");
+    } finally {
+        button.disabled = false;
+        button.innerHTML = "ENVIAR LISTA";
+    }
+}
+
+async function loginAndFetch() {
+    const mac = document.getElementById("loginMac").value.trim().toUpperCase();
+    const pin = document.getElementById("loginPin").value.trim();
+    const btn = document.getElementById("btnLogin");
+
+    if (!/^[A-Z0-9]{7}$/.test(mac) || !/^[0-9]{7}$/.test(pin)) {
+        showStatus("MAC e PIN devem conter 7 caracteres.", "error");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = "VERIFICANDO...";
+    showStatus("", "none");
+
+    try {
+        const ghToken = await getGithubToken();
+        const fileData = await getGithubFile(mac, ghToken);
+
+        if (!fileData) throw new Error("O código MAC informado não foi encontrado. Verifique os dados e tente novamente.");
+        if (fileData.json.Pin !== pin && fileData.json.pin !== pin) throw new Error("PIN incorreto.");
+
+        currentFileData = { mac, sha: fileData.sha, json: fileData.json, ghToken };
+        renderVerticalList();
+
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("userListsContainer").style.display = "block";
+
+    } catch (err) {
+        showStatus("Erro: " + err.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "ENTRAR E GERENCIAR";
+    }
+}
+
+function renderVerticalList() {
+    const listDiv = document.getElementById("verticalList");
+    listDiv.innerHTML = "";
+
+    let count = 0;
+    for (let i = 1; i <= 5; i++) {
+        const key = `List${i}`;
+        const item = currentFileData.json[key];
+
+        if (item && item !== "") {
+            count++;
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "list-item";
+
+            let title = getValueByFlexibleKeys(item, ["titulo", "título"]) || `Lista ${i}`;
+            let m3uUrl = getValueByFlexibleKeys(item, ["m3u"]);
+            let user = getValueByFlexibleKeys(item, ["user"]);
+            let host = getValueByFlexibleKeys(item, ["host"]);
+
+            let details = "";
+            if (m3uUrl) {
+                details = `Tipo: M3U | URL: ${m3uUrl}`;
+            } else {
+                details = `Tipo: Xtreme | User: ${user} | Host: ${host}`;
+            }
+
+            itemDiv.innerHTML = `
+                <div class="list-item-info">
+                    <h4>${title}</h4>
+                    <p>${details}</p>
+                </div>
+                <div class="list-actions">
+                    <button class="btn-action btn-edit" onclick="openEditModal('${key}')">Editar</button>
+                    <button class="btn-action btn-delete" onclick="deleteList('${key}')">Apagar</button>
+                </div>
+            `;
+            listDiv.appendChild(itemDiv);
+        }
+    }
+
+    if (count === 0) {
+        listDiv.innerHTML = "<p style='color:#888; text-align:center;'>Nenhuma lista cadastrada.</p>";
+    }
+}
+
+async function deleteList(key) {
+    if (!confirm("Deseja realmente apagar esta lista?")) return;
+
+    currentFileData.json[key] = "";
+    try {
+        await updateGithubFile(currentFileData.mac, currentFileData.json, currentFileData.sha, currentFileData.ghToken);
+        showStatus("Lista apagada com sucesso!", "success");
+        renderVerticalList();
+    } catch (e) {
+        showStatus("Erro ao apagar: " + e.message, "error");
+    }
+}
+
+// Preenchimento dos campos ao clicar em EDITAR
+function openEditModal(key) {
+    currentEditingKey = key;
+    const item = currentFileData.json[key];
+
+    const title = getValueByFlexibleKeys(item, ["titulo", "título"]);
+    const m3uUrl = getValueByFlexibleKeys(item, ["m3u"]);
+    const user = getValueByFlexibleKeys(item, ["user"]);
+    const pass = getValueByFlexibleKeys(item, ["pass"]);
+    const host = getValueByFlexibleKeys(item, ["host"]);
+
+    document.getElementById("editTitle").value = title;
+
+    if (m3uUrl !== "") {
+        document.getElementById("editTypeM3u").style.display = "block";
+        document.getElementById("editTypeXtreme").style.display = "none";
+        document.getElementById("editM3uUrl").value = m3uUrl;
+    } else {
+        document.getElementById("editTypeM3u").style.display = "none";
+        document.getElementById("editTypeXtreme").style.display = "block";
+        document.getElementById("editUser").value = user;
+        document.getElementById("editPass").value = pass;
+        document.getElementById("editHost").value = host;
+    }
+
+    document.getElementById("editModal").style.display = "flex";
+}
+
+function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+}
+
+async function saveEditedList() {
+    const item = currentFileData.json[currentEditingKey];
+    const newTitle = document.getElementById("editTitle").value.trim();
+    const isM3u = getValueByFlexibleKeys(item, ["m3u"]) !== "";
+
+    if (isM3u) {
+        currentFileData.json[currentEditingKey] = {
+            "título": newTitle,
+            "ᴍ3ᴜ": document.getElementById("editM3uUrl").value.trim()
+        };
+    } else {
+        currentFileData.json[currentEditingKey] = {
+            "título": newTitle,
+            "ᴜꜱᴇʀ": document.getElementById("editUser").value.trim(),
+            "ᴩᴀꜱꜱ": document.getElementById("editPass").value.trim(),
+            "host": document.getElementById("editHost").value.trim()
+        };
+    }
+
+    try {
+        await updateGithubFile(currentFileData.mac, currentFileData.json, currentFileData.sha, currentFileData.ghToken);
+        closeEditModal();
+        showStatus("Lista atualizada com sucesso!", "success");
+        renderVerticalList();
+    } catch (e) {
+        showStatus("Erro ao atualizar: " + e.message, "error");
+    }
+}
+
+async function updateGithubFile(mac, jsonObject, sha, ghToken) {
+    const jsonString = JSON.stringify(jsonObject, null, 2);
+    const contentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+    const uploadUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}/${mac}.json`;
+    const bodyPayload = {
+        message: `Atualizando lista do MAC ${mac}`,
+        content: contentBase64
+    };
+    if (sha) bodyPayload.sha = sha;
+
+    const res = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+            "Authorization": `Bearer ${ghToken}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bodyPayload)
+    });
+
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Erro no GitHub");
+    }
+
+    const resData = await res.json();
+    if (currentFileData) currentFileData.sha = resData.content.sha;
+}
+
+function logout() {
+    currentFileData = null;
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("userListsContainer").style.display = "none";
+    showStatus("", "none");
+}
+
+function showStatus(message, type) {
+    const box = document.getElementById("statusMessage");
+    if (!message || type === "none") {
+        box.style.display = "none";
+        return;
+    }
+    box.innerHTML = message;
+    box.className = type === "success" ? "status-success" : "status-error";
+    box.style.display = "block";
+}
+</script>
+
+</body>
+</html>
